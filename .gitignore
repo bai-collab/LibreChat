@@ -193,3 +193,6 @@ scripts/activity-labels/results/
 !e2e/lighthouse/librechat.yaml
 /.lighthouse/
 /e2e/lighthouse/.test-results/
+
+# School AI Office：本機 MongoDB 執行檔與資料（不進 git）
+.school-local/

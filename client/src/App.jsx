@@ -10,10 +10,12 @@ import { ScreenshotProvider, useApiErrorBoundary } from './hooks';
 import WakeLockManager from '~/components/System/WakeLockManager';
 import QueryDevtoolsGate from '~/components/QueryDevtoolsGate';
 import LanguageSync from '~/components/System/LanguageSync';
-import { getThemeFromEnv } from './utils/getThemeFromEnv';
 import { initializeFontSize } from '~/store/fontSize';
+import { getDeploymentTheme } from './themes/pixel';
 import { LiveAnnouncer } from '~/a11y';
 import { router } from './routes';
+
+const deploymentTheme = getDeploymentTheme();
 
 const App = () => {
   const { setError } = useApiErrorBoundary();
@@ -43,24 +45,14 @@ const App = () => {
     initializeFontSize();
   }, []);
 
-  // Load theme from environment variables if available
-  const envTheme = getThemeFromEnv();
-
   return (
     <QueryClientProvider client={queryClient}>
       <RecoilRoot>
         <LanguageSync />
         <LiveAnnouncer>
-          <ThemeProvider
-            // Only pass initialTheme and themeRGB if environment theme exists
-            // This allows localStorage values to persist when no env theme is set
-            {...(envTheme && { initialTheme: 'system', themeRGB: envTheme })}
-          >
-            {/* The ThemeProvider will automatically:
-                1. Apply dark/light mode classes
-                2. Apply custom theme colors if envTheme is provided
-                3. Otherwise use stored theme preferences from localStorage
-                4. Fall back to default theme colors if nothing is stored */}
+          <ThemeProvider themeDefinition={deploymentTheme}>
+            {/* The ThemeProvider applies the pixel definition using the stored
+                appearance mode or current system preference. */}
             <RadixToast.Provider>
               <ToastProvider>
                 <DndProvider backend={HTML5Backend}>

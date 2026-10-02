@@ -1,0 +1,34 @@
+# School AI Office — 本機驗證用最小設定（gitignored，不進 repo）
+version: 1.3.17
+cache: true
+
+interface:
+  agents: true
+  # 驗證 #1：開啟 Agents API（API key 以發 key 的教師身分執行）
+  remoteAgents:
+    use: true
+    create: true
+    share: true
+    public: false
+
+endpoints:
+  agents:
+    disableBuilder: false
+  custom:
+    # 生生有 Token（OpenAI-compatible）；金鑰由使用者自行填入 .env 的 NMKING_API_KEY
+    - name: 'NMKing'
+      apiKey: '${NMKING_API_KEY}'
+      baseURL: 'https://ai.nmking.io/v1'
+      models:
+        # 2026-10-02 實測 /v1/models 只列出 gpt-5.6-luna
+        default: ['gpt-5.6-luna']
+        fetch: true
+      # 2026-10-02 實測：生生有 chat/completions 的串流模式回
+      # 「upstream returned non-JSON response」，Responses API 串流正常 → 強制走 Responses API
+      addParams:
+        useResponsesApi: true
+      titleConvo: false
+      # 與生生有官方 Codex 連線設定一致
+      headers:
+        x-openai-actor-authorization: 'local-image-extension'
+        x-nmking-locale: 'zh-TW'

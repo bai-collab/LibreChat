@@ -1,0 +1,79 @@
+@font-face {
+  font-family: 'Cubic 11';
+  /* 與 style.css 的 Inter 相同，用 $fonts 別名讓 Vite 把字型打包進 dist/assets/fonts */
+  src: url('$fonts/Cubic_11.woff2') format('woff2');
+  font-display: swap;
+}
+
+html[data-theme='pixel'] :is(
+    button:not(:has(svg:only-child)),
+    [role='tab']:not(:has(svg:only-child))
+  ) {
+  font-family: 'Cubic 11', monospace;
+}
+
+html[data-theme='pixel'] h1:not(.markdown *):not(.prose *),
+html[data-theme='pixel'] h2:not(.markdown *):not(.prose *),
+html[data-theme='pixel'] h3:not(.markdown *):not(.prose *) {
+  font-family: 'Cubic 11', monospace;
+  font-size: 22px;
+  line-height: 33px;
+}
+
+html[data-theme='pixel'] aside :is([class*='title'], [data-sidebar-title]) {
+  font-family: 'Cubic 11', monospace;
+  font-size: 11px;
+  line-height: 22px;
+}
+
+/* Keep the pixel theme's geometry independent of Tailwind rounded-* classes. */
+html[data-theme='pixel'] * {
+  border-radius: 0 !important;
+}
+
+html[data-theme='pixel'] :is(
+    :not(button)[class*='animate-spin'],
+    :not(button)[class*='rounded-full'],
+    img[class*='rounded-full'],
+    :not(button)[data-avatar],
+    :not(button)[class*='rounded-full']:has(img),
+    input[type='radio'],
+    :not(button)[role='radio'],
+    :not(button)[role='switch'],
+    :not(button)[role='slider'],
+    :not(button)[role='progressbar']
+  ),
+html[data-theme='pixel'] [role='switch'] * {
+  border-radius: 9999px !important;
+}
+
+/* Square pixel surfaces use the elevation selected by the active theme mode. */
+html[data-theme='pixel'] form:has(textarea),
+html[data-theme='pixel'] [role='dialog'],
+html[data-theme='pixel'] [role='menu'],
+html[data-theme='pixel'] [role='listbox'],
+html[data-theme='pixel'] [data-radix-popper-content-wrapper] > *,
+html[data-theme='pixel'] button[type='submit'],
+html[data-theme='pixel'] button[class*='bg-surface-submit'],
+html[data-theme='pixel'] button[class*='bg-text-primary'] {
+  border: 2px solid currentColor !important;
+  box-shadow: var(--theme-elevation-surface);
+}
+
+html[data-theme='pixel'] button[class*='bg-surface-submit'] {
+  color: rgb(30 27 46);
+}
+
+html[data-theme='pixel'] :is(
+    button[type='submit'],
+    button[class*='bg-surface-submit'],
+    button[class*='bg-text-primary']
+  ):active {
+  box-shadow: 1px 1px 0 rgb(var(--text-primary));
+  transform: translate(2px, 2px);
+}
+
+html[data-theme='pixel'] :focus-visible {
+  outline: 2px solid rgb(var(--ring-primary, 255 204 77));
+  outline-offset: 2px;
+}
