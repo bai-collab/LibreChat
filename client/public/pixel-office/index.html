@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>webview-ui</title>
+    <script>
+      window.acquireVsCodeApi = () => ({
+        postMessage: (msg) =>
+          window.parent.postMessage({ source: 'pixel-office', msg }, location.origin),
+        getState() {},
+        setState() {},
+      });
+    </script>
+    <script>
+      (() => {
+        const TILE_SIZE = 16;
+        const MIN_ZOOM = 1;
+        const MAX_ZOOM = 10;
+        const ZOOM_DEFAULT_DPR_FACTOR = 2;
+        const ZOOM_OUT_SELECTOR = 'button[title="Zoom out (Ctrl+Scroll)"]';
+        const ZOOM_IN_SELECTOR = 'button[title="Zoom in (Ctrl+Scroll)"]';
+        let layout;
+        let activeZoom = Math.max(
+          MIN_ZOOM,
+          Math.min(MAX_ZOOM, Math.round(ZOOM_DEFAULT_DPR_FACTOR * (window.devicePixelRatio || 1))),
+        );
+        let fitFrame = 0;
+        let isAdjustingZoom = false;
+
+        const nextFrame = () => new Promise((resolve) => window.requestAnimationFrame(resolve));
+
+        function getFittedZoom() {
+          if (!layout?.cols || !layout?.rows) {
+            return MIN_ZOOM;
+          }
+
+          const dpr = window.devicePixelRatio || 1;
+          const width = Math.max(1, window.innerWidth - 2) * dpr;
+          const height = Math.max(1, window.innerHeight - 2) * dpr;
+          const widthZoom = Math.floor(width / (layout.cols * TILE_SIZE));
+          const heightZoom = Math.floor(height / (layout.rows * TILE_SIZE));
+          return Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, widthZoom, heightZoom));
+        }
+
+        function scheduleZoomFit() {
+          if (fitFrame) {
+            window.cancelAnimationFrame(fitFrame);
+          }
+          fitFrame = window.requestAnimationFrame(() => {
+            fitFrame = 0;
+            void fitOfficeToPanel();
+          });
+        }
+
+        async function fitOfficeToPanel() {
+          if (!layout || isAdjustingZoom) {
+            return;
+          }
+
+          isAdjustingZoom = true;
+          let reachedLimit = false;
+          try {
+            let zoomIn;
+            let zoomOut;
+            for (let attempt = 0; attempt < 180; attempt += 1) {
+              zoomIn = document.querySelector(ZOOM_IN_SELECTOR);
+              zoomOut = document.querySelector(ZOOM_OUT_SELECTOR);
+              if (zoomIn instanceof HTMLButtonElement && zoomOut instanceof HTMLButtonElement) {
+                break;
+              }
+              await nextFrame();
+            }
+
+            if (!(zoomIn instanceof HTMLButtonElement) || !(zoomOut instanceof HTMLButtonElement)) {
+              reachedLimit = true;
+              return;
+            }
+
+            const targetZoom = getFittedZoom();
+            while (activeZoom !== targetZoom) {
+              const step = targetZoom < activeZoom ? -1 : 1;
+              const button = document.querySelector(
+                step < 0 ? ZOOM_OUT_SELECTOR : ZOOM_IN_SELECTOR,
+              );
+              if (!(button instanceof HTMLButtonElement) || button.disabled) {
+                reachedLimit = true;
+                break;
+              }
+
+              button.click();
+              activeZoom += step;
+              await nextFrame();
+            }
+          } finally {
+            isAdjustingZoom = false;
+            if (layout && !reachedLimit && activeZoom !== getFittedZoom()) {
+              scheduleZoomFit();
+            }
+          }
+        }
+
+        window.addEventListener('message', (event) => {
+          if (
+            event.source !== window.parent ||
+            event.origin !== location.origin ||
+            typeof event.data !== 'object' ||
+            event.data === null ||
+            event.data.type !== 'layoutLoaded' ||
+            typeof event.data.layout !== 'object' ||
+            event.data.layout === null
+          ) {
+            return;
+          }
+
+          layout = event.data.layout;
+          scheduleZoomFit();
+        });
+
+        const resizeObserver = new ResizeObserver(scheduleZoomFit);
+        resizeObserver.observe(document.documentElement);
+        window.addEventListener('resize', scheduleZoomFit);
+      })();
+    </script>
+    <script type="module" crossorigin src="./assets/index-D-OGLsbn.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-CriQp6rI.css">
+    <style>
+      #root > div > [class~='bottom-10'][class~='left-10'],
+      #root > div > [class~='top-8'][class~='left-8'] {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

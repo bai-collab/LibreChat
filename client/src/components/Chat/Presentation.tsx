@@ -7,6 +7,7 @@ import useResetArtifactsOnConversationChange from '~/hooks/Artifacts/useResetArt
 import { ParentSubagentsProvider } from '~/components/Chat/Subagents/ParentSubagentsProvider';
 import DragDropWrapper from '~/components/Chat/Input/Files/DragDropWrapper';
 import { activeSubagentPanel } from '~/components/Chat/Subagents/state';
+import OfficePanel from '~/components/SchoolOffice/OfficePanel';
 import { EditorProvider, ArtifactsProvider } from '~/Providers';
 import { useDeleteFilesMutation } from '~/data-provider';
 import { SidePanelGroup } from '~/components/SidePanel';
@@ -153,6 +154,7 @@ export default function Presentation({ children }: { children: React.ReactNode }
               {children}
             </main>
           </SidePanelGroup>
+          <OfficePanel />
         </ParentSubagentsProvider>
       </AppChatSurface>
     </DragDropWrapper>

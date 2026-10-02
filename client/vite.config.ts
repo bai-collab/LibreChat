@@ -461,7 +461,8 @@ export function sourcemapExclude(opts?: SourcemapExclude): Plugin {
 /**
  * Production builds set `publicDir: false`, so nothing under public/ reaches dist on its
  * own. This copies what the server actually has to serve: all of public/assets (the PWA
- * icons plus the endpoint, tool and language logos referenced at runtime) and robots.txt.
+ * icons plus endpoint, tool and language logos), public/pixel-office (the webview), and
+ * robots.txt.
  * public/fonts is deliberately left out, since fonts are emitted as bundle assets through
  * the `$fonts` alias.
  *
@@ -485,6 +486,13 @@ export function copyPublicAssets(): Plugin {
       await fs.promises.cp(path.join(publicDir, 'assets'), path.join(outDir, 'assets'), {
         recursive: true,
       });
+      await fs.promises.cp(
+        path.join(publicDir, 'pixel-office'),
+        path.join(outDir, 'pixel-office'),
+        {
+          recursive: true,
+        },
+      );
       await fs.promises.copyFile(
         path.join(publicDir, 'robots.txt'),
         path.join(outDir, 'robots.txt'),

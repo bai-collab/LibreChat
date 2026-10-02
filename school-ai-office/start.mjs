@@ -95,6 +95,8 @@ if (await portOpen(27017)) {
   children.push(spawn(MONGOD, [
     '--dbpath', path.join(LOCAL, 'mongo-data'), '--bind_ip', '127.0.0.1', '--port', '27017',
     '--logpath', path.join(LOCAL, 'mongod.log'), '--logappend',
+    // 2026-10-02 實測：診斷資料收集（FTDC）在本機會 fatal assertion 讓資料庫崩潰；學校用途不需要，關閉
+    '--setParameter', 'diagnosticDataCollectionEnabled=false',
   ], { stdio: 'ignore' }));
   if (!(await waitFor(() => portOpen(27017), 30000))) fail('資料庫啟動失敗，請看 .school-local\\mongod.log');
 }
