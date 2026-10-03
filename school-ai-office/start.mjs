@@ -69,6 +69,25 @@ if (!nmkingKey) {
   fail('還沒填生生有金鑰。已幫您用記事本打開 .env：在最後一行 NMKING_API_KEY= 後面貼上金鑰、存檔，再雙擊一次啟動檔。');
 }
 
+// Google 登入設定檢查：只提醒、不擋啟動（步驟見 school-ai-office/GOOGLE-LOGIN.md）
+const envText = fs.readFileSync(envPath, 'utf8');
+const envVal = (k) => new RegExp(`^${k}=(.*)$`, 'm').exec(envText)?.[1]?.trim() ?? '';
+if (envVal('GOOGLE_CLIENT_ID') || envVal('GOOGLE_CLIENT_SECRET')) {
+  const warn = (msg) => console.warn(`⚠ Google 登入：${msg}`);
+  if (!envVal('GOOGLE_CLIENT_ID') || !envVal('GOOGLE_CLIENT_SECRET')) {
+    warn('.env 的 GOOGLE_CLIENT_ID 和 GOOGLE_CLIENT_SECRET 要兩個都填，登入頁才會出現 Google 按鈕。');
+  }
+  if (envVal('ALLOW_SOCIAL_LOGIN') !== 'true') {
+    warn('.env 的 ALLOW_SOCIAL_LOGIN 要改成 true，Google 按鈕才會出現。');
+  }
+  if (envVal('ALLOW_SOCIAL_REGISTRATION') !== 'true') {
+    warn('.env 的 ALLOW_SOCIAL_REGISTRATION 不是 true：還沒有帳號的老師無法用 Google 第一次登入。');
+  }
+  if (!/^\s*allowedDomains:/m.test(fs.readFileSync(yamlPath, 'utf8'))) {
+    warn('librechat.yaml 沒有設定 allowedDomains，任何網域的 Google 帳號都可能註冊。');
+  }
+}
+
 if (!fs.existsSync(MONGOD)) {
   step('準備', `下載資料庫 MongoDB ${MONGO_VERSION}（約 600MB，只需一次）…`);
   fs.mkdirSync(LOCAL, { recursive: true });
