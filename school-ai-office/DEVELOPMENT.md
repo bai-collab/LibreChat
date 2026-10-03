@@ -71,7 +71,7 @@ start-school-ai-office.cmd → school-ai-office/start.mjs
 2. **Google 共用日曆**：讀寫工具（MCP 或 Agent tool）；共用日曆讀寫分離、事件記錄真正建立者；不要用網域全域委派。
 3. **LINE Gateway＋帳號綁定**：Gateway 只走 Agents API；綁定碼一次性、有期限。
 4. **提醒**：不用 Sheets 去重，用有鎖與重試的做法。
-5. **AI 操作導覽**：見第 10 節。登錄表與示範頁已完成；下一步做 LibreChat 內的正式版（GuideOverlay）。
+5. **AI 操作導覽**：見第 10 節。登錄表與示範頁已完成；正式版（GuideOverlay）交由本機 session 實作，交接手冊見 `school-ai-office/HANDOFF-guide-overlay.md`。
 6. 視情況把分支合回 bai-collab/LibreChat 的 main（先問使用者）。
 
 ## 10. 規劃中：AI 操作導覽（加粗框＋focus）
