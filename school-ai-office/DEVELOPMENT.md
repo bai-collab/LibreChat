@@ -1,10 +1,10 @@
 # 學校 AI 辦公室：開發交接（給下一個開發 session）
 
 > 使用者操作請看同資料夾的 `README.md`。本檔給接手開發的人／AI：現況、規則、已知坑、下一步。
-> 最後更新：2026-10-02。分支 `school/pixel-theme-zh-hant`（尚未合回 main）。
+> 最後更新：2026-10-03。分支 `school/pixel-theme-zh-hant`（尚未合回 main）。
 
 ## 1. 一句話現況
-LibreChat（bai-collab/LibreChat fork）已改成「學校 AI 辦公室」：像素風主題、全繁中介面、對話旁的像素辦公室面板（Agent 角色隨回覆動作）、一鍵啟動。模型由「生生有 Token」提供。Google 登入／行事曆／LINE 都**還沒做**。
+LibreChat（bai-collab/LibreChat fork）已改成「學校 AI 辦公室」：像素風主題、全繁中介面、對話旁的像素辦公室面板（Agent 角色隨回覆動作）、一鍵啟動。模型由「生生有 Token」提供。Google 登入的設定方式已寫好（`GOOGLE-LOGIN.md`，純設定、不改程式），待使用者建立 OAuth 用戶端後實測；行事曆／LINE **還沒做**。
 
 ## 2. 必守規則
 1. **只推到 bai-collab/LibreChat，絕不回傳原開發者**。`upstream` 只用來 fetch 官方更新；其 push URL 已設為無效值，`gh` 預設 repo 已設為 bai-collab/LibreChat。不要對 LibreChat-AI/LibreChat 開 PR 或 issue。
@@ -62,7 +62,11 @@ start-school-ai-office.cmd → school-ai-office/start.mjs
 - REMOTE_AGENT「分享給他人後可用」的正向案例尚未測。
 
 ## 9. 下一步（依原計畫順序）
-1. **Google Workspace 登入**：使用者是學校網域管理員，可建「內部」OAuth 用戶端；LibreChat 有 Google 社群登入設定（`.env` 的 GOOGLE_CLIENT_ID 等）。
+1. **Google Workspace 登入**（設定已備妥，待實測）：步驟見 `GOOGLE-LOGIN.md`。重點：
+   - 「內部」OAuth 用戶端＋`librechat.yaml` 的 `registration.allowedDomains` 雙重限制網域。`allowedDomains` 是完全比對，子網域要各自列出。
+   - `start.mjs` 啟動時會檢查設定，漏填只提醒、不擋啟動。
+   - 既有的 email 密碼帳號不會和 Google 帳號合併（`already exists with provider local`）。
+   - Google 只接受 localhost 或 HTTPS 的重新導向 URI，所以目前只能在本機用。全校使用要先有正式網址＋HTTPS。
 2. **Google 共用日曆**：讀寫工具（MCP 或 Agent tool）；共用日曆讀寫分離、事件記錄真正建立者；不要用網域全域委派。
 3. **LINE Gateway＋帳號綁定**：Gateway 只走 Agents API；綁定碼一次性、有期限。
 4. **提醒**：不用 Sheets 去重，用有鎖與重試的做法。

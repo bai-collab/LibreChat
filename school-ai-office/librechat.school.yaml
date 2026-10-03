@@ -2,6 +2,15 @@
 version: 1.3.17
 cache: true
 
+# Google Workspace 登入（操作步驟見 school-ai-office/GOOGLE-LOGIN.md）
+registration:
+  # 登入頁只顯示 Google 按鈕（還要在 .env 填 GOOGLE_CLIENT_ID／SECRET 並設 ALLOW_SOCIAL_LOGIN=true 才會出現）
+  socialLogins: ['google']
+  # 只允許學校網域的帳號註冊／登入：把下面兩行取消註解，換成學校 email @ 後面的網域。
+  # 必須完全相符：老師是 t.example.edu.tw、學生是 st.example.edu.tw 的話，兩個都要列。
+  # allowedDomains:
+  #   - 'example.edu.tw'
+
 interface:
   agents: true
   # 驗證 #1：開啟 Agents API（API key 以發 key 的教師身分執行）
