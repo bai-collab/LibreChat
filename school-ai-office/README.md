@@ -25,6 +25,9 @@
 1. 在登入頁按「註冊」，建立帳號（第一個註冊的帳號就是管理員）。
 2. 左側「Agent」可以建立學校助手（例如校務助手、行事曆助手），模型選「NMKing／gpt-5.6-luna」。
 
+## 操作導覽（視覺化）
+雙擊 `school-ai-office/guide.html`，用瀏覽器打開。選一項操作或直接輸入問題，模擬畫面會把要按的地方加粗框標出來，照步驟卡做即可。目前包含：分享 Agent 給處室主任、開放一般老師分享、開啟 Google 登入。
+
 ## 用學校 Google 帳號登入（選用）
 讓老師用學校 Google Workspace 帳號登入、只允許學校網域。只要改設定，詳細步驟見 **[GOOGLE-LOGIN.md](GOOGLE-LOGIN.md)**。
 
@@ -41,6 +44,7 @@
 | 啟動程式 | `school-ai-office/start.mjs` | 會 |
 | 學校版設定範本 | `school-ai-office/librechat.school.yaml` | 會 |
 | Google 登入設定步驟 | `school-ai-office/GOOGLE-LOGIN.md` | 會 |
+| 操作導覽網頁 | `school-ai-office/guide.html` | 會 |
 | 實際設定 | `librechat.yaml` | 不會 |
 | 金鑰與密碼 | `.env` | **不會**（不要分享、不要提交） |
 | 資料庫程式與資料 | `.school-local/` | 不會 |

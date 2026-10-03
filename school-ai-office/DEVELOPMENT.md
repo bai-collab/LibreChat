@@ -33,6 +33,7 @@ start-school-ai-office.cmd → school-ai-office/start.mjs
 | 辦公室面板 | `client/src/components/SchoolOffice/`（OfficePanel、useOfficeBridge、protocol）；掛在 `client/src/components/Chat/Presentation.tsx` |
 | 辦公室畫面 | `client/public/pixel-office/`（pixel-agents 編譯產物，修改紀錄見 `VENDORED.md`）；`client/vite.config.ts` 負責打包 |
 | 啟動／設定 | `start-school-ai-office.cmd`、`school-ai-office/start.mjs`、`school-ai-office/librechat.school.yaml` |
+| 操作導覽（示範） | `school-ai-office/guide.html`（獨立網頁，直接雙擊開啟；設計見第 10 節） |
 
 ## 5. 開發常用
 - 改了 `client/`：`npm.cmd run frontend`（或只改 client 時 `cd client && npm.cmd run build`），然後關掉啟動視窗再雙擊一次（後端會快取舊的檔案清單，不重啟會白畫面）。
@@ -70,4 +71,54 @@ start-school-ai-office.cmd → school-ai-office/start.mjs
 2. **Google 共用日曆**：讀寫工具（MCP 或 Agent tool）；共用日曆讀寫分離、事件記錄真正建立者；不要用網域全域委派。
 3. **LINE Gateway＋帳號綁定**：Gateway 只走 Agents API；綁定碼一次性、有期限。
 4. **提醒**：不用 Sheets 去重，用有鎖與重試的做法。
-5. 視情況把分支合回 bai-collab/LibreChat 的 main（先問使用者）。
+5. **AI 操作導覽**：見第 10 節，示範頁已完成，正式版待使用者決定。
+6. 視情況把分支合回 bai-collab/LibreChat 的 main（先問使用者）。
+
+## 10. 規劃中：AI 操作導覽（加粗框＋focus）
+
+### 目標
+老師在 LibreChat 裡問「怎麼把 Agent 分給總務主任？」，AI 除了用文字回答，還在**真正的畫面上**把要按的按鈕加粗框、移過焦點，一步一步帶著做。
+
+### 現況（2026-10-03）
+- `school-ai-office/guide.html` 是**靜態示範**：用模擬畫面驗證互動方式（加粗框、focus、上一步／下一步、點目標也能前進）。
+- 目前有 3 個導覽：分享 Agent 給處室主任、開放一般使用者分享、開啟 Google 登入。
+- 問答是**關鍵字比對**，不是 AI。尚未接進 LibreChat。
+- 已用 Playwright 實測：3 個問題都比對到正確導覽、焦點落在目標元素；390px 寬每一步都沒有橫向捲動、沒有 console 錯誤。
+
+### 正式版架構（建議）
+```text
+老師提問
+  → 「操作導覽」Agent（指示裡附上導覽清單：id、標題、適用情境）
+  → 回覆文字中帶一個標記，例如 [[guide:share]]（只允許清單內的 id）
+  → 前端 useGuideCommand 在最新一則回覆中偵測標記 → 顯示「開始導覽」按鈕
+  → 老師按下 → GuideOverlay 依 id 查導覽登錄表，逐步：
+        prepare（例如打開側邊欄）→ 找 DOM → 加粗框 → scrollIntoView → focus
+  → 下一步／Esc 結束（結束時焦點還給原本的位置）
+```
+
+| 檔案（建議） | 職責 |
+|---|---|
+| `client/src/components/SchoolGuide/registry.ts` | 導覽登錄表：每步的目標、說明文字的語系 key、prepare 動作、需要的角色 |
+| `client/src/components/SchoolGuide/GuideOverlay.tsx` | 加框（4px 粗框＋硬陰影，尊重 reduced motion）、focus 管理、`aria-live` 唸出步驟、找不到目標時的提示 |
+| `client/src/components/SchoolGuide/useGuideCommand.ts` | 從 AI 回覆中解析 `[[guide:id]]`，比照 `SchoolOffice/useOfficeBridge.ts` 監看訊息的方式 |
+
+### 設計決策
+1. **目標用語系 key 定位，不改官方元件**：例如管理員設定按鈕是 `aria-label={localize('com_ui_admin_settings')}`，登錄表寫成 `{ labelKey: 'com_ui_admin_settings' }`，執行時組出 `[aria-label="管理員設定"]`。
+   - 不用在官方元件加 `data-guide`，同步 upstream 不會衝突。
+   - 切換語言也不會壞。
+   - 只有沒有穩定 aria-label 的元素才考慮加 `data-guide`，加了要記在 README 的官方檔案清單。
+2. **AI 只能指定導覽 id，不能給 selector 或程式碼**：上傳的檔案或網頁內容可能夾帶提示注入，所以前端只接受登錄表裡有的 id，其他一律忽略。
+3. **只標示、不代按**：導覽永遠不自動點擊或送出，按鈕一定由老師自己按。
+4. **由老師按「開始導覽」才移動焦點**：避免老師還在讀回覆，焦點就被搶走（無障礙要求）。
+5. **權限感知**：步驟標註需要的角色（例如管理員設定只有 ADMIN 看得到）。一般帳號問到時，回答「請聯絡管理員」，不開始導覽。
+6. **第一版用文字標記，不用工具呼叫**：標記不需要後端，改 Agent 指示就能調整。之後要更穩定，再改成 Agent tool `show_guide(id)`，前端從工具呼叫事件取得 id。
+
+### 驗收
+- 每個導覽 id 用 Playwright 在真正的 LibreChat（管理員與一般帳號各一次）跑完全部步驟，斷言每一步都找得到目標。
+  - 這組測試也是 **upstream 更新後的警報**：官方改了按鈕文字或位置，測試會先壞。
+- 手機寬度、暗色主題、鍵盤操作（Tab／Esc）、螢幕報讀器唸出步驟。
+- AI 回覆裡出現清單外的 id、或夾帶 selector，前端都不能有任何動作。
+
+### 待使用者決定
+1. 範圍：先做管理員用的導覽（分享、權限、登入），還是也做老師日常操作（建立 Agent、上傳檔案、切換模型）？
+2. 正式版完成後，`guide.html` 要改成從同一份登錄表產生（避免兩份內容不一致），還是保留為獨立的離線說明頁？
