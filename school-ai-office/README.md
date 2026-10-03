@@ -26,7 +26,9 @@
 2. 左側「Agent」可以建立學校助手（例如校務助手、行事曆助手），模型選「NMKing／gpt-5.6-luna」。
 
 ## 操作導覽（視覺化）
-雙擊 `school-ai-office/guide.html`，用瀏覽器打開。選一項操作或直接輸入問題，模擬畫面會把要按的地方加粗框標出來，照步驟卡做即可。目前包含：分享 Agent 給處室主任、開放一般老師分享、開啟 Google 登入。
+雙擊 `school-ai-office/guide.html`，用瀏覽器打開。選一項操作或直接輸入問題，模擬畫面會把要按的地方加粗框標出來，照步驟卡做即可。目前包含：
+- 老師日常：用學校助手開始對話、上傳檔案讓 AI 讀、建立自己的助手、找回以前的對話。
+- 管理員：分享 Agent 給處室主任、開放一般老師分享、開啟 Google 登入。
 
 ## 用學校 Google 帳號登入（選用）
 讓老師用學校 Google Workspace 帳號登入、只允許學校網域。只要改設定，詳細步驟見 **[GOOGLE-LOGIN.md](GOOGLE-LOGIN.md)**。
@@ -44,7 +46,8 @@
 | 啟動程式 | `school-ai-office/start.mjs` | 會 |
 | 學校版設定範本 | `school-ai-office/librechat.school.yaml` | 會 |
 | Google 登入設定步驟 | `school-ai-office/GOOGLE-LOGIN.md` | 會 |
-| 操作導覽網頁 | `school-ai-office/guide.html` | 會 |
+| 操作導覽網頁（由登錄表產生） | `school-ai-office/guide.html`、`school-ai-office/build-guide.mjs` | 會 |
+| 導覽登錄表（示範頁與正式版共用） | `client/src/components/SchoolGuide/registry.ts` | 會 |
 | 實際設定 | `librechat.yaml` | 不會 |
 | 金鑰與密碼 | `.env` | **不會**（不要分享、不要提交） |
 | 資料庫程式與資料 | `.school-local/` | 不會 |
@@ -68,4 +71,4 @@
 - 模型清單目前只有 `gpt-5.6-luna`。
 
 ## 與 LibreChat 官方版的關係
-這是 `LibreChat-AI/LibreChat` 的 fork。學校的修改盡量用「新增檔案」完成，以便持續合併官方的安全更新；動到官方檔案的只有 `client/src/App.jsx`（主題接入一行）、`client/src/main.jsx`（載入樣式一行）、`client/index.html`（favicon）、`client/public/assets/logo.svg`、`client/src/components/Chat/Presentation.tsx`（掛上辦公室面板，2 行）、`client/vite.config.ts`（打包辦公室畫面）、`.gitignore`。
+這是 `LibreChat-AI/LibreChat` 的 fork。學校的修改盡量用「新增檔案」完成，以便持續合併官方的安全更新；動到官方檔案的只有 `client/src/App.jsx`（主題接入一行）、`client/src/main.jsx`（載入樣式一行）、`client/index.html`（favicon）、`client/public/assets/logo.svg`、`client/src/components/Chat/Presentation.tsx`（掛上辦公室面板，2 行）、`client/vite.config.ts`（打包辦公室畫面）、`.gitignore`，以及語系檔 `client/src/locales/en`、`zh-Hant` 的 `translation.json`（學校用字串集中在檔案開頭的 `com_ui_school_*`；zh-Hant 另補齊缺漏翻譯，並把 `com_ui_instructions` 改為「指示」）。
